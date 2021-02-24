@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 """
+ESAME
+
 Created on Fri Feb 19 19:29:33 2021
 
 @author: furlan
 """
-class ExamException(Exception):
+class ExamException(Exception): 
     pass
 
 class CSVFile():
     def __init__(self,name):
-        if  not isinstance(name,str):
-            raise ExamException("il nome del file deve essere passato attraverso un valore di tipo str")
+        if  not isinstance(name,str):  #controllo che l'argomento passato passato in fase di inizailizzazione sia di tipo stringa
+            raise ExamException("il nome del file deve essere passato attraverso un valore di tipo str") #in caso contratio alzo un'eccezione
         self.name=name
     def get_data(self):
         try:
@@ -58,7 +60,7 @@ def hourly_trend_changes(time_series):
     if len(time_series)<3: #controllo che la lista abbia almeno 3 record, altrimenti la funzione di ricerca seppur funzionante, non avrebbe senso
         raise ExamException("per misurare i cambiamenti di trend orari è necessaria una lista di dati di almeno 3 elementi") #in caso contrario alzo un eccezione
     result=[] #inizializzo una variabile lista di output
-    prec_variation=0 #inizializzo a 0 una avariabile ausiliaria, rappresentante la differenza fra le due variabili precedenti 
+    prec_variation=0 #inizializzo a 0 una avariabile ausiliaria, rappresentante la differenza fra le due variabili precedenti in ordine
     changes=0 #inizializzo a 0 una variabile ausiliaria, rappresentante un counter per il numero di cambiamenti di trend nell'ora considerata
     try:next_hour=((time_series[0][0]//3600)+1)*3600 #calcolo il valore epoch di inizio dell'ora a cui appartiene il primo valore epoch della time series e lo incremento di 3600 per passare all'inizio dell'ora successiva 
     except:raise ExamException("errore nel formato dati della time series")#qualora il calcolo non fosse possibile il formato dati della time series non è corretto
@@ -69,23 +71,18 @@ def hourly_trend_changes(time_series):
                 if prec_variation*(time_series[i][1]-time_series[i-1][1])<0: #controllo che la variazione precedente fra le temperature e quella che considero siano discordi nel segno
                     changes+=1 #qualora lo fossero si ha un'inversione di trend e aumento di 1 il counter
                     prec_variation*=(-1) #invece di attribuire alla variabile ausiliaria il valore della variazione attuale ne cambio solo il segno, unico nostro interesse
-                elif prec_variation==0:
-                    prec_variation=time_series[i][1]-time_series[i-1][1]
-                i+=1
+                elif prec_variation==0: #qualora prec_variation abbia il valore di default
+                    prec_variation=time_series[i][1]-time_series[i-1][1] #le attribuisco l'effettivo valore della variazione attuale
+                i+=1 # incremento l'indice di ricorsione
         except:
-            ExamException("errore nel tipo di dati")
-        result.append(changes)
-        changes=0
-        curr_hour+=3600
-    return result
-
-
-
-
-
-            
-                        
-                
+            ExamException("errore nel tipo di dati") #nel caso in cui vi siano errori sono attribuibili ad IndexError o a TypeError riconducibili a un formato dati della time series non corretto, da notare che gli elementi lista della timeseries possono avere anche più di 2 elementi
+        result.append(changes) # aggiungo il numero di inversioni rilevate per quel giorno alla lista di output
+        changes=0 #azzero il counter
+        next_hour+=3600 #incremento di 3600 per passare all'inizio dell'ora sucessiva
+        #da notare l'assenza dell'incremento dell'indice i 
+    return result #restituisco la lista di output          
+                      
+#se lanciato dà in output numero di giorni e lista delle inversioni di trend per giorno di un file "data.csv" presente nella cartella           
 if __name__=="__main__":                   
                 
     time_series_file = CSVTimeSeriesFile(name='data.csv')
